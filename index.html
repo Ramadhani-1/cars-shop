@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARS SHOP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+
+        /* Sidebar (Menu Tab) */
+        .sidebar {
+            width: 200px;
+            background-color: #333;
+            padding-top: 20px;
+            height: 100vh;
+            position: fixed;
+        }
+
+        .sidebar P{
+            color: white;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+
+        /* Cart Icon */
+        .cart {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            background-color: #f39c12;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px;
+            font-size: 18px;
+        }
+
+        /* Main content */
+        .content {
+            margin-left: 200px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .content h1 {
+            margin: 0;
+        }
+
+        .content h2 {
+            font-size: 24px;
+        }
+
+        .car-item {
+            display: inline-block;
+            text-align: center;
+            margin: 15px;
+        }
+
+        .car-item img {
+            max-width: 200px;
+            margin: 10px;
+        }
+
+        .car-item button {
+            background-color: #f39c12;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 5px;
+            display: block;
+            width: 200px;
+        }
+
+        .car-item button:hover {
+            background-color: #e67e22;
+        }
+
+        .car-item p {
+            font-size: 18px;
+            margin: 0;
+        }
+
+        /* Cart Modal */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            background-color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 1000;
+        }
+
+        .cart-modal h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .cart-modal ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .cart-modal ul li {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .cart-modal ul li img {
+            width: 50px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        .cart-modal ul li button {
+            background-color: red;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        .cart-modal ul li button:hover {
+            background-color: darkred;
+        }
+
+        .cart-modal button {
+            background-color: #f39c12;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .cart-modal button:hover {
+            background-color: #e67e22;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <p>CARS BRANDS</p>
+        <a href="#" onclick="showBrand('subaru')">Subaru</a>
+        <a href="#" onclick="showBrand('toyota')">Toyota</a>
+        <a href="#" onclick="showBrand('verossa')">Verossa</a>
+    </div>
+
+    <!-- Cart Icon -->
+    <div class="cart" onclick="toggleCartModal()">🛒 Cart (<span id="cartCount">0</span>)</div>
+
+    <!-- Cart Modal -->
+    <div class="cart-modal" id="cartModal">
+        <h2>Your Cart</h2>
+        <ul id="cartItems">
+            <li>No items added yet!</li>
+        </ul>
+        <button onclick="proceedToPayment()">Proceed to Payment</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1>CARS SHOP</h1>
+        <div id="brandContent">
+            <h2>Select a brand to see details</h2>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function showBrand(brand) {
+            const content = document.getElementById('brandContent');
+            let itemsHtml = '';
+
+            if (brand === 'subaru') {
+                itemsHtml = generateCarItems('Subaru', ['subaru1.jpeg', 'subaru2.jpeg', 'subaru3.jpeg']);
+            } else if (brand === 'toyota') {
+                itemsHtml = generateCarItems('Toyota', ['toyota1.jpeg', 'toyota2.jpeg', 'toyota3.jpeg']);
+            } else if (brand === 'verossa') {
+                itemsHtml = generateCarItems('Verossa', ['verossa1.jpeg', 'verossa2.jpeg', 'verossa3.jpeg']);
+            }
+
+            content.innerHTML = `
+                <h2>${brand.charAt(0).toUpperCase() + brand.slice(1)}</h2>
+                <div>${itemsHtml}</div>
+            `;
+        }
+
+        function generateCarItems(brand, images) {
+            return images.map((image, index) => `
+                <div class="car-item">
+                    <img src="${image}" alt="${brand} Image ${index + 1}">
+                    <p>${brand} ${index + 1}</p>
+                    <p>Price: 500 Tsh</p>
+                    <button onclick="addToCart('${brand} ${index + 1}', '${image}', 500)">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(name, image, price) {
+            cart.push({ name, image, price });
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartCount = document.getElementById('cartCount');
+            const cartItems = document.getElementById('cartItems');
+            cartCount.textContent = cart.length;
+
+            if (cart.length > 0) {
+                cartItems.innerHTML = '';
+                cart.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <img src="${item.image}" alt="${item.name}">
+                        ${item.name} - ${item.price} Tsh
+                        <button onclick="removeFromCart(${index})">Remove</button>
+                    `;
+                    cartItems.appendChild(li);
+                });
+            } else {
+                cartItems.innerHTML = '<li>No items added yet!</li>';
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function toggleCartModal() {
+            const cartModal = document.getElementById('cartModal');
+            if (cartModal.style.display === 'none' || cartModal.style.display === '') {
+                cartModal.style.display = 'block';
+            } else {
+                cartModal.style.display = 'none';
+            }
+        }
+
+        function proceedToPayment() {
+            alert('Proceeding to Payment with ' + cart.length + ' item(s) in your cart.');
+        }
+    </script>
+
+</body>
+</html>
